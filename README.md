@@ -34,7 +34,7 @@ csiro   https://github.com/AuScope/portal-core.git (push)
 ```
 
 ### `master`
-Our master branch tracks `AuScope/portal-core#master`. We don't ourselves commit to
+Our `master` branch tracks `AuScope/portal-core#master`. We don't ourselves commit to
 it, we use it as a base for our feature branches. Anyone can at
 any time fast-forward the `master` branch to include the latest upstream work from
 `AuScope/portal-core#master`.
@@ -52,7 +52,7 @@ While we wait for our pull requests to be merged upstream into
 changes to http://portal-dev.geoscience.gov.au.
 
 ### Feature branches
-To begin work on a new feature, update master and branch.
+To begin work on a new feature, update `master` and branch.
 
 ```
 git checkout master
@@ -64,7 +64,7 @@ git checkout -b feature-X
 At anytime, you can request that your work be peer-reviewed and integrated by
 sending a pull request to merge your feature branch into `master-ga`. Do not
 merge other people's work into your feature branches. Do not keep your feature
-branches up-to-date with upstream by merging, consider rebasing instead.
+branches up-to-date with upstream by merging, rebase instead.
 Unrelated commits in your feature branches will make your work harder to merge
 in isolation into `AuScope/portal-core`.
 
