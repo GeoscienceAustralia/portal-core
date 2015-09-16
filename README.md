@@ -2,8 +2,8 @@
 
 `portal-core` is a library of common services, tools, and widgets, used to
 facilitate development of web portal applications that consume OGC services. It
-is actively maintained by CSIRO, and it is currently used by AuScope and VGL
-portals.
+is actively maintained by CSIRO, and it is currently used by AuScope,
+Geoscience, and VGL portals.
 
 See:
 
