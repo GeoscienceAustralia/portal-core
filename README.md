@@ -56,7 +56,7 @@ To begin work on a new feature, update `master` and branch.
 
 ```
 git checkout master
-git pull sciro master
+git pull csiro master
 git push origin master
 git checkout -b feature-X
 ```
