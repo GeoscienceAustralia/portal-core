@@ -70,7 +70,7 @@ in isolation into `AuScope/portal-core`.
 
 When your feature is complete, integrated and tested, send a pull request to
 `AuScope/portal-core#master`. Eventually, your changes will arrive back into
-our `master` branch when someone updates it and become integrated into our
+our `master` branch when someone updates it and become part of our
 subsequent work.
 
 
