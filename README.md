@@ -12,7 +12,7 @@ See:
 
 ## Geoscience Australia
 
-Geoscience Australia is working on Geoscience Portal, a customised and
+Geoscience Australia is developing Geoscience Portal, a customised and
 re-branded copy of the AuScope Portal. This fork of `AuScope/portal-core` is
 our means of contributing to the development of the shared `portal-core` library.
 
