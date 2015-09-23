@@ -68,7 +68,7 @@ Ext.define('portal.widgets.grid.plugin.InlineContextMenu', {
         this.callParent(arguments);
     },
 
-    generateToolbar : function(record, renderTo, grid) {
+    generateToolbar : function(record, renderTo) {
         var items = [];
         Ext.each(this.actions, function(action) {
             items.push(Ext.create('Ext.button.Button', action));
