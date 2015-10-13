@@ -63,16 +63,12 @@ git checkout -b feature-X
 
 At anytime, you can request that your work be peer-reviewed and integrated by
 sending a pull request to merge your feature branch into `master-ga`. Do not
-merge other people's work into your feature branches. Do not keep your feature
-branches up-to-date with upstream by merging, rebase instead.
-Unrelated commits in your feature branches will make your work harder to merge
-in isolation into `AuScope/portal-core`.
+merge other people's work into your feature branch. Unrelated commits in your
+feature branch will make your work harder to merge in isolation into
+`AuScope/portal-core`.
 
 When your feature is complete, integrated and tested, send a pull request to
-`AuScope/portal-core#master`. Eventually, your changes will arrive back into
-our `master` branch when someone updates it and become part of our
-subsequent work.
-
-
-
-
+`AuScope/portal-core#master`. You may need to merge in changes from
+`AuScope/portal-core#master to resolve any conflicts locally before sending a
+pull request. Eventually, your changes will arrive back into our `master`
+branch when someone updates it and become part of our subsequent work.
