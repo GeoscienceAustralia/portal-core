@@ -627,7 +627,6 @@ Ext.define('portal.widgets.panel.BaseRecordPanel', {
             searchBar.hide();
         }
     },
-        
     _deleteRenderer : function(value, metaData, record, row, col, store, gridView) {
         if (value) {
             return Ext.DomHelper.markup({
