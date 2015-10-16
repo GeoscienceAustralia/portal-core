@@ -13,7 +13,7 @@ import org.auscope.portal.core.services.methodmakers.filter.FilterBoundingBox;
 import org.joda.time.DateTime;
 
 /**
- * Represents a OGC:Filter that will fetch matching records from a CS/W.
+ * Represents a OGC:Filter that will fetch matching records from a CSW.
  *
  * @author Josh Vote
  *
@@ -52,7 +52,19 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
 
     /** The abstract. */
     private String abstract_ = null;
+    
+    /** A field for title OR abstract, if we want to search on either */
+    private String titleOrAbstract = null;
 
+    /** The Author's surname */
+    private String authorSurname = null;
+
+    /** The publication date's lower bound. */
+    private DateTime publicationDateFrom = null;
+
+    /** The publication date's upper bound. */
+    private DateTime publicationDateTo = null;
+    
     /** The metadata change date's lower bound. */
     private DateTime metadataChangeDateFrom = null;
 
@@ -82,6 +94,13 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
 
     private Type type;
 
+    /**
+     * Default constructor for creating a filter in a factory method manner.
+     * Create an empty filter and set the fields manually. 
+     */
+    public CSWGetDataRecordsFilter() {
+    }
+    
     /**
      * Generates a new filter generator for the specified fields.
      *
@@ -142,7 +161,7 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
         this.title = title;
         this.type = type;
     }
-
+    
     /**
      * Utility method for generating the body of a filter fragment.
      * 
@@ -159,6 +178,27 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
             fragments.add(this.generatePropertyIsLikeFragment("title", this.title));
         }
 
+        if (titleOrAbstract != null && !titleOrAbstract.isEmpty()) {
+            fragments.add(
+                generateOrComparisonFragment(
+                    this.generatePropertyIsLikeFragment("title", "*" + this.titleOrAbstract + "*"),
+                    this.generatePropertyIsLikeFragment("abstract", "*" + this.titleOrAbstract + "*")));
+        }
+        
+        if (authorSurname != null && !authorSurname.isEmpty()) {
+            fragments.add(generateAndComparisonFragment(
+                    this.generatePropertyIsLikeFragment("metadataIndividualPointOfContact", "*" + authorSurname + "*")));
+        }
+        
+        if (publicationDateFrom != null) {
+            fragments.add(this.generatePropertyIsGreaterThanOrEqualTo("publicationDate", publicationDateFrom.toString()));
+        }
+
+        if (publicationDateTo != null) {
+            fragments.add(this.generatePropertyIsLessThanOrEqualTo("publicationDate", publicationDateTo.toString()));
+        }
+
+        
         if (type != null && type != Type.all) {
             if (type == Type.dataset) {
                 fragments.add(this.generatePropertyIsEqualToFragment("type", "dataset"));
@@ -312,7 +352,11 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
                 + ", metadataChangeDateTo=" + metadataChangeDateTo
                 + ", temporalExtentFrom=" + temporalExtentFrom
                 + ", temporalExtentTo=" + temporalExtentTo
-                + ", keywordMatchType=" + keywordMatchType + "]";
+                + ", keywordMatchType=" + keywordMatchType
+                + ", titleOrAbstract=" + titleOrAbstract
+                + ", authorSurname=" + authorSurname
+                + ", publicationDateFrom=" + publicationDateFrom
+                + ", publicationDateTo=" + publicationDateTo + "]";
 
     }
 
@@ -355,6 +399,62 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
     public void setAbstract(String abstract_) {
         this.abstract_ = abstract_;
     }
+   
+    /**
+     * @return the titleOrAbstract
+     */
+    public String getTitleOrAbstract() {
+        return titleOrAbstract;
+    }
+
+    /**
+     * @param titleOrAbstract the titleOrAbstract to set
+     */
+    public void setTitleOrAbstract(String titleOrAbstract) {
+        this.titleOrAbstract = titleOrAbstract;
+    }
+
+    /**
+     * @return the authorSurname
+     */
+    public String getAuthorSurname() {
+        return authorSurname;
+    }
+
+    /**
+     * @param authorSurname the authorSurname to set
+     */
+    public void setAuthorSurname(String authorSurname) {
+        this.authorSurname = authorSurname;
+    }
+   
+    /**
+     * @return the publicationDateFrom
+     */
+    public DateTime getPublicationDateFrom() {
+        return publicationDateFrom;
+    }
+
+    /**
+     * @param publicationDateFrom the publicationDateFrom to set
+     */
+    public void setPublicationDateFrom(DateTime publicationDateFrom) {
+        this.publicationDateFrom = publicationDateFrom;
+    }
+
+    /**
+     * @return the publicationDateTo
+     */
+    public DateTime getPublicationDateTo() {
+        return publicationDateTo;
+    }
+
+    /**
+     * @param publicationDateTo the publicationDateTo to set
+     */
+    public void setPublicationDateTo(DateTime publicationDateTo) {
+        this.publicationDateTo = publicationDateTo;
+    }
 
     /** Sets metadataChangeDateFrom. */
     public void setMetadataChangeDateFrom(DateTime metadataChangeDateFrom) {
@@ -375,5 +475,63 @@ public class CSWGetDataRecordsFilter extends AbstractFilter {
     public void setTemporalExtentTo(DateTime temporalExtentTo) {
         this.temporalExtentTo = temporalExtentTo;
     }
+
+    /**
+     * @param anyText the anyText to set
+     */
+    public void setAnyText(String anyText) {
+        this.anyText = anyText;
+    }
+
+    /**
+     * @param abstract_ the abstract_ to set
+     */
+    public void setAbstract_(String abstract_) {
+        this.abstract_ = abstract_;
+    }
+
+    /**
+     * @param spatialBounds the spatialBounds to set
+     */
+    public void setSpatialBounds(FilterBoundingBox spatialBounds) {
+        this.spatialBounds = spatialBounds;
+    }
+
+    /**
+     * @param keywords the keywords to set
+     */
+    public void setKeywords(String[] keywords) {
+        this.keywords = keywords;
+    }
+
+    /**
+     * @param capturePlatform the capturePlatform to set
+     */
+    public void setCapturePlatform(String capturePlatform) {
+        this.capturePlatform = capturePlatform;
+    }
+
+    /**
+     * @param sensor the sensor to set
+     */
+    public void setSensor(String sensor) {
+        this.sensor = sensor;
+    }
+
+    /**
+     * @param keywordMatchType the keywordMatchType to set
+     */
+    public void setKeywordMatchType(KeywordMatchType keywordMatchType) {
+        this.keywordMatchType = keywordMatchType;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(Type type) {
+        this.type = type;
+    }
+    
+    
 
 }
