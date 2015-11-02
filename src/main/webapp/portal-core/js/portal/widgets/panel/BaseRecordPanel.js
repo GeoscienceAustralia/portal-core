@@ -402,7 +402,7 @@ Ext.define('portal.widgets.panel.BaseRecordPanel', {
     },
     
     /** 
-     * This wil be called indirectly via AppEvents.broadcast('removelayer', layer);
+     * This will be called indirectly via AppEvents.broadcast('removelayer', layer);
      * Look for the .listener() elsewhere
      */
     _removeLayer : function(layerArray) {
@@ -413,7 +413,6 @@ Ext.define('portal.widgets.panel.BaseRecordPanel', {
             this.activelayerstore.remove(layer);          
             this.fireEvent('cellclick',this,undefined,undefined,layer,undefined,rowIdx);
             this.menuFactory.layerRemoveHandler(layer);
-            AppEvents.broadcast('removelayer', layer);
         } else {
             console.log('_removeLayer : no activeLayer with id:',layer.id," in this.activelayerstore: ", this.activelayerstore.getData());
         }
