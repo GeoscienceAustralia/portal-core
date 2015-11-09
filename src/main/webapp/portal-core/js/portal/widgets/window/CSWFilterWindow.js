@@ -156,11 +156,6 @@ Ext.define('portal.widgets.window.CSWFilterWindow', {
 
         return result;
 
-    },
-    
-    // overridden close method to obtain a reference to the search window and close it as well
-    close: function() {      
-        this.hide();
     }
 });
 
