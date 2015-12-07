@@ -594,7 +594,7 @@ public class CSWRecord {
         this.service = service;
     }
 
-	/**
+    /**
      * Creates a hashcode based on this record's file identifier
      */
     @Override
