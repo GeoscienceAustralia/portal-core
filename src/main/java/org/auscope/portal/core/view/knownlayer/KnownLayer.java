@@ -368,5 +368,4 @@ public class KnownLayer implements Serializable {
                 + feature_count + ", order=" + order + "]";
     }
     
-    
 }
