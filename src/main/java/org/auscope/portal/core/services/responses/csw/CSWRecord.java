@@ -74,8 +74,6 @@ public class CSWRecord {
 
     private boolean noCache;
 
-    private boolean service;
-    
     /**
      * Instantiates a new empty CSWRecord
      * 
@@ -607,14 +605,6 @@ public class CSWRecord {
         } else {
             return super.equals(o);
         }
-    }
-
-    public boolean isService() {
-        return service;
-    }
-
-    public void setService(boolean service) {
-        this.service = service;
     }
 
     /**

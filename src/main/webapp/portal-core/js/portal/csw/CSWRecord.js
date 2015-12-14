@@ -36,8 +36,7 @@ Ext.define('portal.csw.CSWRecord', {
         { name: 'loading', type: 'boolean', defaultValue: false },//Whether this layer is currently loading data or not
         { name: 'layer', type: 'auto'}, // store the layer after it has been converted.        
         { name: 'active', type: 'boolean', defaultValue: false },//Whether this layer is current active on the map.
-        { name: 'customlayer', type: 'boolean', defaultValue: false }, //If true, this layer is added from browse catalogue
-        { name: 'service', type: 'boolean', defaultValue: false } //If true, this layer is a service layer that may contain layers in the getCapabilities
+        { name: 'customlayer', type: 'boolean', defaultValue: false } //If true, this layer is added from browse catalogue
     ],
 
     /**
