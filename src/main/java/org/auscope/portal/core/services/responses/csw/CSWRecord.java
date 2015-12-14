@@ -74,6 +74,8 @@ public class CSWRecord {
 
     private boolean noCache;
 
+    private boolean service;
+    
     /**
      * Instantiates a new empty CSWRecord
      * 
@@ -607,7 +609,15 @@ public class CSWRecord {
         }
     }
 
-    /**
+    public boolean isService() {
+        return service;
+    }
+
+    public void setService(boolean service) {
+        this.service = service;
+    }
+
+	/**
      * Creates a hashcode based on this record's file identifier
      */
     @Override
