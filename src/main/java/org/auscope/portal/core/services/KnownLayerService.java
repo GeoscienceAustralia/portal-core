@@ -21,6 +21,7 @@ import org.auscope.portal.core.view.knownlayer.KnownLayerSelector;
  */
 public class KnownLayerService {
     private final Log logger = LogFactory.getLog(getClass().getName());
+
     private List<KnownLayer> knownLayers;
     private CSWCacheService cswCacheService;
 
