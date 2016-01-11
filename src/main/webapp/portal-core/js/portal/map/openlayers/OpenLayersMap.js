@@ -233,9 +233,17 @@ Ext.define('portal.map.openlayers.OpenLayersMap', {
                     if (type === portal.csw.OnlineResource.WMS ||
                         type === portal.csw.OnlineResource.WCS) {
 
-                        if(layer.get('filterer').getParameters().serviceFilter &&
-                                (this._getDomain(resourcesToIterate[k].get('url'))!= this._getDomain(layer.get('filterer').getParameters().serviceFilter[0]))){
-                            continue;
+                        var serviceFilter = layer.get('filterer').getParameters().serviceFilter;
+                        if (serviceFilter) {
+                            if (Ext.isArray(serviceFilter)) {
+                                serviceFilter = serviceFilter[0];
+                            }
+                            // layers get filtered based on the service provider
+                            // or from a single provider and based on the layer name
+                            if (resourcesToIterate[k].get('name') != serviceFilter &&
+                                    this._getDomain(resourcesToIterate[k].get('url')) != serviceFilter) {
+                                continue;
+                            }
                         }
 
                         queryTargets.push(Ext.create('portal.layer.querier.QueryTarget', {
@@ -368,7 +376,7 @@ Ext.define('portal.map.openlayers.OpenLayersMap', {
             ],
             layers: [
                      new OpenLayers.Layer.WMS (
-                         "World Political Boundaries",
+                         "World Political Boundaries (white background)",
                          "http://www.ga.gov.au/gis/services/topography/World_Political_Boundaries_WM/MapServer/WMSServer",
                          {layers: 'Countries'}
                      ),
@@ -385,8 +393,8 @@ Ext.define('portal.map.openlayers.OpenLayersMap', {
                          {numZoomLevels: 20}
                      ),
                      new OpenLayers.Layer.Google(
-                         "Google Satellite",
-                         {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
+                             "Google Satellite",
+                             {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
                      )
                  ],
                  center: new OpenLayers.LonLat(133.3, -26)
@@ -401,9 +409,7 @@ Ext.define('portal.map.openlayers.OpenLayersMap', {
         this.highlightPrimitiveManager = this.makePrimitiveManager();
         this.container = container;
         this.rendered = true;
-
-       
-
+        
         //VT: adds a customZoomBox which fires a afterZoom event.
         var zoomBoxCtrl = new OpenLayers.Control.ZoomBox({alwaysZoom:true,zoomOnClick:false});
         var panCtrl = new OpenLayers.Control.Navigation();
@@ -502,12 +508,11 @@ Ext.define('portal.map.openlayers.OpenLayersMap', {
             this.map.updateSize();
         }, this);
         
-      //Finally listen for resize events on the parent container so we can pass the details
+        //Finally listen for boxready events on the parent container so we can pass the details
         //on to Openlayers.
         container.on('boxready', function() {
             this.map.updateSize();
-        }, this);
-        
+        }, this);        
     },
 
     // Save functions as listeners to call back once the map is created

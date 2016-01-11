@@ -181,15 +181,16 @@ Ext.define('portal.widgets.panel.BaseRecordPanel', {
         var me = this;   
         var panel = Ext.create('portal.widgets.panel.FilterPanel', {    
             menuFactory : this.menuFactory,
-            filterForm  : filterForm, 
+            filterForm : filterForm, 
             detachOnRemove : false,
             map         : this.map,
             renderTo    : parentElId,
             menuItems : [],
+            layerStore : me.activelayerstore,
             listeners : {
                 addlayer : function(layer){
                     me.activelayerstore.suspendEvents(true);
-                    me.activelayerstore.insert(0,layer); //this adds the layer to our store
+                    me.activelayerstore.insert(0,layer);
                     me.activelayerstore.resumeEvents();
                 },
                 removelayer : function(layer){
@@ -397,7 +398,7 @@ Ext.define('portal.widgets.panel.BaseRecordPanel', {
     _deleteClickHandler :  function(value, record, rowIdx, tip) {
         var layer = record.get('layer');
         if(layer && record.get('active')){            
-        	AppEvents.broadcast('removelayer', {layer:layer, rowIdx:rowIdx});
+        	AppEvents.broadcast('removelayer', {layer:layer, layerStore:this.activelayerstore, rowIdx:rowIdx});
         } 
     },    
     _removeLayer : function(layerArray) {

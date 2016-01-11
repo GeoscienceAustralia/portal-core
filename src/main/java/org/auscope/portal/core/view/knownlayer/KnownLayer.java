@@ -367,6 +367,4 @@ public class KnownLayer implements Serializable {
                 + polygonColor + ", iconAnchor=" + iconAnchor + ", iconSize=" + iconSize + ", feature_count="
                 + feature_count + ", order=" + order + "]";
     }
-    
-    
 }
