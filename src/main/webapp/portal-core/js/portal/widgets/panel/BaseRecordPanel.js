@@ -183,8 +183,9 @@ Ext.define('portal.widgets.panel.BaseRecordPanel', {
             menuFactory : this.menuFactory,
             filterForm : filterForm, 
             detachOnRemove : false,
-            map : this.map,
-            renderTo : parentElId,
+            map         : this.map,
+            renderTo    : parentElId,
+            menuItems : [],
             layerStore : me.activelayerstore,
             listeners : {
                 addlayer : function(layer){
