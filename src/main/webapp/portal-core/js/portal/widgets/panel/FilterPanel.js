@@ -270,11 +270,14 @@ Ext.define('portal.widgets.panel.FilterPanel', {
         var layer = this.filterForm.layer;    
         
         var filterer = layer.get('filterer');              
+
+        filterer.setSpatialParam(this._map.getVisibleMapBounds(), true);
         
-        //Before applying filter, update the spatial bounds (silently)
-        filterer.setSpatialParam(this._map.getVisibleMapBounds(), true); 
-        this.filterForm.writeToFilterer(filterer);        
+        this.filterForm.writeToFilterer(filterer); 
         
+        // Fire the event for external clients
+        console.log("_onAddLayer - layer name: ", layer.get('name'));
+
         this.layerStore.suspendEvents(true);
         this.layerStore.insert(0,layer);
         this.layerStore.resumeEvents();
@@ -284,7 +287,7 @@ Ext.define('portal.widgets.panel.FilterPanel', {
         this._showConstraintWindow(layer);
 
         //VT: Tracking
-        portal.util.PiwikAnalytic.trackevent('Add:' + layer.get('sourceType'), 'Layer:' + layer.get('name'),'Filter:' + Ext.encode(filterer.getParameters())); 
+        portal.util.PiwikAnalytic.trackevent('Add:' + layer.get('sourceType'), 'Layer:' + layer.get('name'),'Filter:' + Ext.encode(filterer.getParameters()));
         
     },
     
