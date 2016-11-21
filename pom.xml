@@ -3,7 +3,7 @@
     <groupId>org.auscope.portal</groupId>
     <artifactId>portal-core</artifactId>
     <packaging>jar</packaging>
-    <version>1.5.0.AUSGIN-SNAPSHOT</version>
+    <version>1.5.0.AUSGIN</version>
     <name>Portal-Core</name>
     <description>Core functionality common to various AuScope portals.</description>
     <url>http://portal.auscope.org</url>
