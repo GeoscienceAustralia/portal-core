@@ -35,7 +35,7 @@
         </snapshotRepository>
     </distributionManagement>
 -->
-<!--    <distributionManagement>
+    <distributionManagement>
         <repository>
             <id>nexus.gadevs.releases</id>
             <name>Internal nexus</name>
@@ -45,9 +45,9 @@
             <id>nexus.gadevs.snapshots</id>
             <url>https://nexus.gadevs.ga/repository/maven-snapshots</url>
         </snapshotRepository>
-    </distributionManagement>-->
+    </distributionManagement>
 
-    <distributionManagement>
+<!--    <distributionManagement>
         <repository>
             <id>nexus.gadevs.releases</id>
             <name>Internal nexus</name>
@@ -58,7 +58,7 @@
             <url>http://rhe-repo-prod01.prod.lan:8080/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-
+-->
 <!--   <distributionManagement>
         <repository>
             <id>nexus.gadevs.releases</id>
@@ -366,6 +366,9 @@
             <id>cgmaven.it.csiro.au</id>
             <name>AuScope Nexus - New PortalRepo</name>
             <url>https://cgmaven.it.csiro.au/nexus/repository/PortalRepository/</url>
+ <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
         </repository>
         <!-- This is for AuScope specific snapshot builds of packages that arent in Maven central -->
         
