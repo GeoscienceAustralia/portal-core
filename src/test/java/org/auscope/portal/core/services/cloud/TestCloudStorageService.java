@@ -34,7 +34,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.io.ByteSource;
+import com.shaded.google.common.io.ByteSource;
+
 
 public class TestCloudStorageService extends PortalTestClass {
     private final String bucket = "bucket-name";
@@ -412,8 +413,10 @@ public class TestCloudStorageService extends PortalTestClass {
 
     @Test(expected=PortalServiceException.class)
     public void testStsRequired() throws PortalServiceException {
-        CloudStorageServiceJClouds stsService = new CloudStorageServiceJClouds("dummy1", "dummy2", "dummy3");
+        CloudStorageServiceJClouds stsService = new CloudStorageServiceJClouds();
         stsService.setStsRequirement(STSRequirement.Mandatory);
+        stsService.setEndpoint("https://keystone.rc.nectar.org.au:5000/v3");
+        stsService.setAccessKey("Project:User");
         stsService.getBlobStoreContext(null, null);
     }
 

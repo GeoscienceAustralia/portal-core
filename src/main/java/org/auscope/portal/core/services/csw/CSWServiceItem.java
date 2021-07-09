@@ -5,13 +5,15 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.auscope.portal.core.server.OgcServiceProviderType;
+
 /**
  * A simple class that stores the URL of a CSW service along with extra security / misc information
  *
  * @author Josh Vote
  */
 public class CSWServiceItem {
-
+	
     private String id;
     private String title;
     private String serviceUrl;
@@ -22,9 +24,17 @@ public class CSWServiceItem {
     private String cqlText;
     private String defaultAnyTextFilter;
     private String[] defaultConstraints;
+    private OgcServiceProviderType serverType = OgcServiceProviderType.Default;
     private boolean noCache = false;
     private boolean hideFromCatalogue = false;
 
+    /**
+     * No arg constructor necessary for binding
+     */
+    public CSWServiceItem() {
+    	super();
+    }
+    
     /**
      * Creates a new service item with NO role restrictions
      * 
@@ -58,10 +68,25 @@ public class CSWServiceItem {
      * @param title
      */
     public CSWServiceItem(String id, String serviceUrl, String recordInformationUrl, String title) {
+        this(id, serviceUrl, recordInformationUrl, title, OgcServiceProviderType.Default);
+    }
+    
+    /**
+     * Creates a new service item with ServerType
+     * 
+     * @param id
+     *            Must be unique per service
+     * @param serviceUrl
+     * @param recordInformationUrl
+     * @param title
+     * @param serverType
+     */
+    public CSWServiceItem(String id, String serviceUrl, String recordInformationUrl, String title, OgcServiceProviderType serverType) {
         this.id = id;
         this.serviceUrl = serviceUrl;
         this.recordInformationUrl = recordInformationUrl;
         this.title = title;
+        this.serverType = serverType;
     }
     
     /**
@@ -98,6 +123,7 @@ public class CSWServiceItem {
         for (Object role : restrictedRoleList) {
             this.restrictedRoleList[i++] = role.toString();
         }
+        
     }
 
     /**
@@ -107,6 +133,15 @@ public class CSWServiceItem {
      */
     public String getServiceUrl() {
         return this.serviceUrl;
+    }
+    
+    /**
+     * Set service URL
+     * 
+     * @param serviceUrl
+     */
+    public void setServiceUrl(String serviceUrl) {
+    	this.serviceUrl = serviceUrl;
     }
 
     /**
@@ -119,6 +154,15 @@ public class CSWServiceItem {
     public String[] getRestrictedRoleList() {
         return this.restrictedRoleList;
     }
+    
+    /**
+     * Set restriced role list
+     * 
+     * @param restrictedRoleList
+     */
+    public void setRestrictedRoleList(String[] restrictedRoleList) {
+    	this.restrictedRoleList = restrictedRoleList;
+    }
 
     /**
      * Gets the descriptive title of this service item
@@ -128,6 +172,15 @@ public class CSWServiceItem {
     public String getTitle() {
         return this.title;
     }
+    
+    /**
+     * Set title
+     * 
+     * @param title
+     */
+    public void setTitle(String title) {
+    	this.title = title;
+    }
 
     /**
      * Gets the unique ID of this service item
@@ -136,6 +189,15 @@ public class CSWServiceItem {
      */
     public String getId() {
         return this.id;
+    }
+    
+    /**
+     * Set ID
+     * 
+     * @param id
+     */
+    public void setId(String id) {
+    	this.id = id;
     }
 
     /**
@@ -166,6 +228,15 @@ public class CSWServiceItem {
      */
     public String getRecordInformationUrl() {
         return recordInformationUrl;
+    }
+    
+    /**
+     * Set record information URL
+     * 
+     * @param recordInformationUrl
+     */
+    public void setRecordInformationUrl(String recordInformationUrl) {
+    	this.recordInformationUrl = recordInformationUrl;
     }
 
     @Override
@@ -307,6 +378,11 @@ public class CSWServiceItem {
         return this.noCache;
     }
 
+    /**
+     * Get default constraints
+     * 
+     * @return
+     */
     public String[] getDefaultConstraints() {
         return this.defaultConstraints;
     }
@@ -336,5 +412,24 @@ public class CSWServiceItem {
 
     public void setHideFromCatalogue(boolean hideFromCatalogue) {
         this.hideFromCatalogue = hideFromCatalogue;
+    }
+    
+    /**
+     * Get serverType for the CSW service
+     * 
+     * @return String
+     */
+    public OgcServiceProviderType getServerType() {
+        return serverType;
+    }
+
+    /**
+     * Set serverType for the CSW service
+     * 
+     * @param serverType
+     * 			the OGC service provider type for this CSW item.
+     */
+    public void setServerType(OgcServiceProviderType serverType) {
+        this.serverType = serverType;
     }
 }
