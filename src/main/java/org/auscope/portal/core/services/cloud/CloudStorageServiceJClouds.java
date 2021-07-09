@@ -15,6 +15,7 @@ import org.auscope.portal.core.cloud.CloudJob;
 import org.auscope.portal.core.services.PortalServiceException;
 import org.auscope.portal.core.util.TextUtil;
 import org.jclouds.ContextBuilder;
+import org.jclouds.aws.domain.SessionCredentials;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.KeyNotFoundException;
@@ -27,14 +28,17 @@ import org.jclouds.blobstore.domain.internal.MutableBlobMetadataImpl;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.domain.Credentials;
 import org.jclouds.io.ContentMetadata;
+import org.jclouds.openstack.keystone.config.KeystoneProperties;
 import org.jclouds.openstack.swift.v1.blobstore.RegionScopedBlobStoreContext;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.sts.STSApi;
 import org.jclouds.sts.domain.UserAndSessionCredentials;
 import org.jclouds.sts.options.AssumeRoleOptions;
 
-import com.google.common.base.Supplier;
-import com.google.common.io.Files;
+import com.shaded.google.common.base.Supplier;
+import com.shaded.google.common.base.Suppliers;
+import com.shaded.google.common.io.Files;
+
 
 /**
  * Service for providing storage of objects (blobs) in a cloud using the JClouds library
@@ -51,6 +55,8 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
     private boolean stripExpectHeader;
 
     private STSRequirement stsRequirement=STSRequirement.Permissable;
+    
+    
 
    /**
     * Returns whether AWS cross account authorization is mandatory, optional or forced off
@@ -80,8 +86,8 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
      * @param secretKey
      *            Password credentials for accessing the storage service
      */
-    public CloudStorageServiceJClouds(String provider, String accessKey, String secretKey) {
-        this(null, provider, accessKey, secretKey, null, false);
+    public CloudStorageServiceJClouds(String provider, String accessKey, String secretKey, String sessionKey) {
+        this(null, provider, accessKey, secretKey, sessionKey, null, false);
     }
 
     /**
@@ -96,8 +102,8 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
      * @param secretKey
      *            Password credentials for accessing the storage service
      */
-    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey) {
-        this(endpoint, provider, accessKey, secretKey, null, false);
+    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String sessionKey) {
+        this(endpoint, provider, accessKey, secretKey, sessionKey, null, false);
     }
 
     /**
@@ -114,9 +120,9 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
      * @param relaxHostName
      *            Whether security certs are required to strictly match the host
      */
-    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey,
+    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String sessionKey,
             boolean relaxHostName) {
-        this(endpoint, provider, accessKey, secretKey, null, relaxHostName);
+        this(endpoint, provider, accessKey, secretKey, sessionKey, null, relaxHostName);
     }
 
     /**
@@ -133,8 +139,8 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
      * @param regionName
      *            The region identifier string for this service (if any). Can be null/empty.
      */
-    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String regionName) {
-        this(endpoint, provider, accessKey, secretKey, regionName, false);
+    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String sessionKey, String regionName) {
+        this(endpoint, provider, accessKey, secretKey, sessionKey, regionName, false);
     }
 
     /**
@@ -153,9 +159,9 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
      * @param relaxHostName
      *            Whether security certs are required to strictly match the host
      */
-    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String regionName,
+    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String sessionKey, String regionName,
             boolean relaxHostName) {
-        this(endpoint, provider, accessKey, secretKey, regionName, relaxHostName, false);
+        this(endpoint, provider, accessKey, secretKey, sessionKey, regionName, relaxHostName, false);
     }
 
     /**
@@ -176,7 +182,7 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
      * @param stripExpectHeader
      *            Whether to remove HTTP Expect header from requests; set to true for blobstores that do not support 100-Continue
      */
-    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String regionName,
+    public CloudStorageServiceJClouds(String endpoint, String provider, String accessKey, String secretKey, String sessionKey, String regionName,
             boolean relaxHostName, boolean stripExpectHeader) {
         super(endpoint, provider, regionName);
 
@@ -185,9 +191,17 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
 
         this.setAccessKey(accessKey);
         this.setSecretKey(secretKey);
+        this.setSessionKey(sessionKey);
     }
 
-    private BlobStore getBlobStore(String arn, String clientSecret) throws PortalServiceException {
+    /***
+     * For unit testing only
+     */
+    public CloudStorageServiceJClouds() {
+		super(null, null, null);
+	}
+
+	private BlobStore getBlobStore(String arn, String clientSecret) throws PortalServiceException {
         try (BlobStoreContext ctx = getBlobStoreContext(arn, clientSecret)) {
             if (getRegionName() != null && ctx instanceof RegionScopedBlobStoreContext) {
                 return ((RegionScopedBlobStoreContext) ctx).getBlobStore(getRegionName());
@@ -207,6 +221,14 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
         properties.setProperty("jclouds.relax-hostname", relaxHostName ? "true" : "false");
         properties.setProperty("jclouds.strip-expect-header", stripExpectHeader ? "true" : "false");
 
+        // Keystone v3 will require a few extra properties
+        if(this.getEndpoint() != null && this.getEndpoint().contains("keystone") && this.getEndpoint().contains("v3")) {
+            String[] accessParts = this.getAccessKey().split(":");
+            String projectName = accessParts[0];
+            properties.put(KeystoneProperties.KEYSTONE_VERSION, "3");
+            properties.put(KeystoneProperties.SCOPE, "project:" + projectName);
+        }
+        
         Class<? extends BlobStoreContext> targetClass = BlobStoreContext.class;
         if (getRegionName() != null) {
             if (getProvider().contains("openstack") || getProvider().contains("swift")) {
@@ -218,8 +240,22 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
 
         if(! TextUtil.isNullOrEmpty(arn)) {
             ContextBuilder builder = ContextBuilder.newBuilder("sts");
-            if(getAccessKey()!=null && getSecretKey()!=null)
-                builder.credentials(getAccessKey(), getSecretKey());
+        	
+            if(  (! TextUtil.isNullOrEmpty(getAccessKey())) && 
+            		(! TextUtil.isNullOrEmpty(getSecretKey()))) {
+            	if(! TextUtil.isNullOrEmpty(getSessionKey())) {
+            		
+            		SessionCredentials credentials = SessionCredentials.builder()
+            			    .accessKeyId(getAccessKey())
+            			    .secretAccessKey(getSecretKey())
+            			    .sessionToken(getSessionKey())
+            			    .build();
+
+            		builder.credentialsSupplier(Suppliers.ofInstance(credentials));
+            	} else {
+            		builder.credentials(getAccessKey(), getSecretKey());
+            	}
+            }
 
             try (STSApi api = builder.buildApi(STSApi.class)) {
                 AssumeRoleOptions assumeRoleOptions = new AssumeRoleOptions().durationSeconds(3600)
@@ -251,9 +287,28 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
 
             ContextBuilder builder = ContextBuilder.newBuilder(getProvider()).overrides(properties);
 
-            if (getAccessKey() != null && getSecretKey() != null)
-                builder.credentials(getAccessKey(), getSecretKey());
+            if(  (! TextUtil.isNullOrEmpty(getAccessKey())) && 
+            		(! TextUtil.isNullOrEmpty(getSecretKey()))) {
+            	if(! TextUtil.isNullOrEmpty(getSessionKey())) {
+                    SessionCredentials credentials = SessionCredentials.builder()
+                            .accessKeyId(getAccessKey())
+                            .secretAccessKey(getSecretKey())
+                            .sessionToken(getSessionKey())
+                            .build();
 
+                    builder.credentialsSupplier(Suppliers.ofInstance(credentials));
+            	} else {
+                    String accessKey = getAccessKey();
+                    String secretKey = getSecretKey();
+                    if(this.getEndpoint() != null && this.getEndpoint().contains("keystone") && this.getEndpoint().contains("v3")) {
+                        properties.put(KeystoneProperties.KEYSTONE_VERSION, "3");
+                        String[] accessParts = this.getAccessKey().split(":");
+                        accessKey = "default:" + accessParts[1];
+                    }
+                    builder.credentials(accessKey, secretKey);
+            	}
+            }
+            
             if (this.getEndpoint() != null) {
                 builder.endpoint(this.getEndpoint());
             }
@@ -376,7 +431,7 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
 
         try {
             BlobStore bs = getBlobStore(arn, clientSecret);
-            String baseKey = generateBaseKey(job);
+            String baseKey = jobToBaseKey(job);
 
             String bucketName = getBucket(job);
 
@@ -423,21 +478,18 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
     public void uploadJobFiles(CloudFileOwner job, File[] files) throws PortalServiceException {
         String arn = job.getProperty(CloudJob.PROPERTY_STS_ARN);
         String clientSecret = job.getProperty(CloudJob.PROPERTY_CLIENT_SECRET);
-
+        
         try {
             BlobStore bs = getBlobStore(arn, clientSecret);
 
             String bucketName = getBucket(job);
             bs.createContainerInLocation(null, bucketName);
             for (File file : files) {
-
                 Blob newBlob = bs.blobBuilder(keyForJobFile(job, file.getName()))
                         .payload(Files.asByteSource(file))
                         .contentLength(file.length())
                         .build();
                 bs.putBlob(bucketName, newBlob);
-
-                log.debug(file.getName() + " uploaded to '" + bucketName + "' container");
             }
         } catch (AuthorizationException ex) {
             log.error("Storage credentials are not valid for job: " + job, ex);
@@ -458,7 +510,7 @@ public class CloudStorageServiceJClouds extends CloudStorageService {
     public void uploadJobFile(CloudFileOwner job, String fileName, InputStream data) throws PortalServiceException {
         String arn = job.getProperty(CloudJob.PROPERTY_STS_ARN);
         String clientSecret = job.getProperty(CloudJob.PROPERTY_CLIENT_SECRET);
-
+        
         try {
             BlobStore bs = getBlobStore(arn, clientSecret);
             String bucketName = getBucket(job);
